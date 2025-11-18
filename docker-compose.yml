@@ -1,0 +1,36 @@
+version: '3.9'
+
+services:
+  auth_service:
+    build: .
+    container_name: auth_service
+    ports:
+      - "8000:80"
+    environment:
+      - DATABASE_URL=postgresql://myuser:mypassword@postgres_db:5432/users_db
+    depends_on:
+      - postgres_db
+
+  postgres_db:
+    image: postgres:15
+    container_name: postgres_db
+    environment:
+      POSTGRES_USER: myuser
+      POSTGRES_PASSWORD: mypassword
+      POSTGRES_DB: users_db
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+
+  auth_tests:
+    build: .
+    command: pytest -v
+    environment:
+      - DATABASE_URL=postgresql://myuser:mypassword@postgres_db:5432/users_db
+    depends_on:
+      - postgres_db
+
+volumes:
+  pgdata:
+

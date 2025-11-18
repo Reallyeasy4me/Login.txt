@@ -1,0 +1,8 @@
+fastapi
+uvicorn[standard]
+sqlalchemy
+psycopg2-binary
+passlib
+pydantic[email]>=2.0
+httpx
+pytest
