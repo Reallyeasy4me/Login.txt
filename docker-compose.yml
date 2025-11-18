@@ -1,16 +1,6 @@
-version: '3.9'
+version: "3.9"
 
 services:
-  auth_service:
-    build: .
-    container_name: auth_service
-    ports:
-      - "8000:80"
-    environment:
-      - DATABASE_URL=postgresql://myuser:mypassword@postgres_db:5432/users_db
-    depends_on:
-      - postgres_db
-
   postgres_db:
     image: postgres:15
     container_name: postgres_db
@@ -23,14 +13,26 @@ services:
     volumes:
       - pgdata:/var/lib/postgresql/data
 
-  auth_tests:
+  auth_service:
     build: .
+    container_name: auth_service
+    command: uvicorn main:app --host 0.0.0.0 --port 80
+    environment:
+      - DATABASE_URL=postgresql://myuser:mypassword@postgres_db:5432/users_db
+    depends_on:
+      - postgres_db
+    ports:
+      - "8000:80"
+
+  test_runner:
+    build: .
+    container_name: test_runner
     command: pytest -v
     environment:
       - DATABASE_URL=postgresql://myuser:mypassword@postgres_db:5432/users_db
     depends_on:
       - postgres_db
+      - auth_service
 
 volumes:
   pgdata:
-
